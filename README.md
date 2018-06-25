@@ -12,5 +12,5 @@ This implementation relies on three components:
 1. Game Manager -  start up and manage turns, score and end state
 2. Solution Manager - select a word in a language and validate guesses
 3. Guesser - search for a potential word and propose a letter
-  - when matching words are known, propose a common letter from matching set
-  - when no words are known, propose a common letter from all words in the language
+   - when matching words are known, propose a common letter from matching set
+   - when no words are known, propose a common letter from all words in the language
