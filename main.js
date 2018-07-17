@@ -9,15 +9,54 @@
  *     - try this way first
  */
 
-// TODO communicate with Manager
-known = ['', '', '', 'a', '', ''];
+// // implement strategy 3
+// guessables = [];
+// success_rate = {};
 
-// implement strategy 3
-guessables = [];
-success_rate = {};
-
-function guess() {
-  return;
+function storeAnswer(correctAnswer) {
+  return function(guessedAnswer) {
+    return (guessedAnswer == correctAnswer);
+  }
 }
 
-guess();
+function handleCheckAnswer(correctAnswer) {
+  normalizedAnswer = correctAnswer.toLowerCase();
+  return function(letter, i) {
+    return (normalizedAnswer[i] == letter);
+  }
+}
+
+function guess(letter, checkHandler) {
+  return (!badGuesses.includes(letter) && checkHandler(letter, i));
+}
+
+// TODO rewrite function to guess a letter regardless of index
+function guessManager(knownSlots, checkHandler) {
+  var badGuesses = {};
+  var possibleGuesses = 'abcdefghijklmnopqrstuvwxyz'.split();
+  for (var i=0; i < knownSlots.length; i++) {
+    // guess unknown letter
+    if (!knownSlots[i]) {
+      // TODO can this branch be unreached and leave 1+ empty slot?
+      for (var letter of possibleGuesses) {
+        if (guess(letter, checkHandler)) {
+          knownSlots[i] = letter;
+          break;
+        } else {
+          badGuesses[letter] = badGuesses.includes(letter) ? [...badGuesses[letter], i] : [i];
+        }
+      }
+    } else {
+      continue;   // correct letter known
+    }
+  }
+  return knownSlots;
+}
+
+// TODO create puzzle generator
+var puzzle = {
+  answer: 'splash',
+  slots: ['', '', '', 'a', '', '']
+};
+var checker = handleCheckAnswer(puzzle.answer);
+guessManager(puzzle.slots, checker);
