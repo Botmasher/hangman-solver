@@ -19,19 +19,52 @@ function storeAnswer(correctAnswer) {
   }
 }
 
-function handleCheckAnswer(correctAnswer) {
+function linearHandleCheckAnswer(correctAnswer) {
   normalizedAnswer = correctAnswer.toLowerCase();
   return function(letter, i) {
     return (normalizedAnswer[i] == letter);
   }
 }
 
-function guess(letter, checkHandler) {
+function guess(letter, checkHandler, i) {
   return (!badGuesses.includes(letter) && checkHandler(letter, i));
 }
 
-// TODO rewrite function to guess a letter regardless of index
-function guessManager(knownSlots, checkHandler) {
+function handleCheckAnswer(answer) {
+  return function(letter) {
+    return answer.indexOf(letter);
+  }
+}
+
+// guess a letter regardless of index
+function guessManager(knownSlots, guessHandler) {
+  var guesses = {};
+  var possibleGuesses = 'abcdefghijklmnopqrstuvwxyz'.split();
+  // guess unknown letter
+  for (var letter of possibleGuesses) {
+    let letter_id;
+    // TODO remove letter from possibles beforehand
+    if (knownSlots.includes(letter) or guesses.letter) {
+      continue;
+    }
+    else {
+      letter_id = guessHandler(letter);
+      if (letter_id > -1) {
+        knownSlots[letter_id] = letter;
+        guesses[letter] = true;
+        // finished filling out the answer
+        if (!knownSlots.includes('')) {
+          break;
+        }
+      } else {
+        guesses[letter] = false;
+      }
+    }
+  return knownSlots;
+}
+
+// guess index by index
+function guessManagerLinear(knownSlots, checkHandler) {
   var badGuesses = {};
   var possibleGuesses = 'abcdefghijklmnopqrstuvwxyz'.split();
   for (var i=0; i < knownSlots.length; i++) {
@@ -39,7 +72,7 @@ function guessManager(knownSlots, checkHandler) {
     if (!knownSlots[i]) {
       // TODO can this branch be unreached and leave 1+ empty slot?
       for (var letter of possibleGuesses) {
-        if (guess(letter, checkHandler)) {
+        if (guess(letter, checkHandler, i)) {
           knownSlots[i] = letter;
           break;
         } else {
@@ -58,5 +91,9 @@ var puzzle = {
   answer: 'splash',
   slots: ['', '', '', 'a', '', '']
 };
+
+//var linearChecker = linearHandleCheckAnswer(puzzle.answer);
+//guessManagerLinear(puzzle.slots, linearChecker);
+
 var checker = handleCheckAnswer(puzzle.answer);
 guessManager(puzzle.slots, checker);
