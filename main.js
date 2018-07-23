@@ -9,10 +9,6 @@
  *     - try this way first
  */
 
-// // implement strategy 3
-// guessables = [];
-// success_rate = {};
-
 function storeAnswer(correctAnswer) {
   return function(guessedAnswer) {
     return (guessedAnswer == correctAnswer);
@@ -32,34 +28,37 @@ function guess(letter, checkHandler, i) {
 
 function handleCheckAnswer(answer) {
   return function(letter) {
-    return answer.indexOf(letter);
+    return answer.split('').map((l, i) => {
+      if (letter === l) {
+        return i;
+      }
+    });
   }
 }
 
 // guess a letter regardless of index
 function guessManager(knownSlots, guessHandler) {
-  var guesses = {};
-  var possibleGuesses = 'abcdefghijklmnopqrstuvwxyz'.split();
+  const guesses = {};
+  const possibleGuesses = 'abcdefghijklmnopqrstuvwxyz'
+    .split('')
+    .filter(guess => !knownSlots.includes(guess))
+  ;
   // guess unknown letter
-  for (var letter of possibleGuesses) {
-    let letter_id;
-    // TODO remove letter from possibles beforehand
-    if (knownSlots.includes(letter) or guesses.letter) {
-      continue;
-    }
-    else {
-      letter_id = guessHandler(letter);
-      if (letter_id > -1) {
-        knownSlots[letter_id] = letter;
+  possibleGuesses.map(letter => {
+    let letterIds = guessHandler(letter);
+    for (letterId of letterIds) {
+      if (letterId > -1) {
+        knownSlots[letterId] = letter;
         guesses[letter] = true;
         // finished filling out the answer
         if (!knownSlots.includes('')) {
-          break;
+          return knownSlots;
         }
       } else {
         guesses[letter] = false;
       }
     }
+  });
   return knownSlots;
 }
 
@@ -87,13 +86,13 @@ function guessManagerLinear(knownSlots, checkHandler) {
 }
 
 // TODO create puzzle generator
-var puzzle = {
+const puzzle = {
   answer: 'splash',
   slots: ['', '', '', 'a', '', '']
 };
 
-//var linearChecker = linearHandleCheckAnswer(puzzle.answer);
+//const linearChecker = linearHandleCheckAnswer(puzzle.answer);
 //guessManagerLinear(puzzle.slots, linearChecker);
 
-var checker = handleCheckAnswer(puzzle.answer);
-guessManager(puzzle.slots, checker);
+const checker = handleCheckAnswer(puzzle.answer);
+console.log(guessManager(puzzle.slots, checker));
