@@ -55,11 +55,30 @@ const formatGuess = guessLetters => (
 );
 
 // TODO create puzzle generator
-// - have known answer display this managed by puzzle instead of guesser
-const puzzle = {
-  answer: 'splash',
-  slots: ['', '', '', 'a', '', '']
+const lexicon = ['apple', 'banana', 'ghost', 'quaint', 'miscellany', 'precocious', 'splash', 'zebra'];   // TODO read items from dictionary API
+
+const emptySlots = (word) => {
+  const wordSlots = [];
+  for (let i=0; i < word.length; i++) {
+    if Math.round(Math.random()) > 0 {
+      wordSlots.push(word.charAt(i));
+    } else {
+      wordSlots.push('');
+    }
+  }
+  return null;
 };
+
+const createPuzzle = () => {
+  const word = lexicon[Math.floor(Math.random() * lexicon.length)];
+  return ({
+    answer: word,
+    slots: emptySlots(word)
+  });
+};
+
+// - have known answer display this managed by puzzle instead of guesser
+const puzzle = createPuzzle();
 
 const checker = handleCheckAnswer(puzzle.answer);
 const myGuess = guessManager(puzzle.slots, checker);
