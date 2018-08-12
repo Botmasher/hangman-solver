@@ -54,31 +54,47 @@ const formatGuess = guessLetters => (
     .join('')
 );
 
-// TODO create puzzle generator
-const lexicon = ['apple', 'banana', 'ghost', 'quaint', 'miscellany', 'precocious', 'splash', 'zebra'];   // TODO read items from dictionary API
-
-const emptySlots = (word) => {
-  const wordSlots = [];
-  for (let i=0; i < word.length; i++) {
-    if Math.round(Math.random()) > 0 {
-      wordSlots.push(word.charAt(i));
-    } else {
-      wordSlots.push('');
-    }
+class PuzzleMaker {
+  constructor(lexicon) {
+    this.lexicon = lexicon;
+    this.puzzles = [];
   }
-  return null;
-};
 
-const createPuzzle = () => {
-  const word = lexicon[Math.floor(Math.random() * lexicon.length)];
-  return ({
-    answer: word,
-    slots: emptySlots(word)
-  });
-};
+  const setLexicon = lexicon => {
+    this.lexicon = lexicon;
+  };
 
-// - have known answer display this managed by puzzle instead of guesser
-const puzzle = createPuzzle();
+  const getPuzzle = puzzleId => (this.puzzles.length-1 <= puzzleId ? this.puzzles[puzzleId] : null);
+
+  const emptySlots = word => {
+    const wordSlots = [];
+    const slots = word.map(letter => Math.round(Math.random()) > 0 ? letter : '');
+    return slots;
+  };
+
+  const addPuzzle = newPuzzle => {
+    this.puzzles = [...this.puzzles, newPuzzle];
+    const puzzleId = this.puzzles.length - 1;
+    return puzzleId;
+  };
+
+  const createPuzzle = () => {
+    const word = this.lexicon[Math.floor(Math.random() * this.lexicon.length)];
+    const newPuzzle = {
+      answer: word,
+      slots: this.emptySlots(word)
+    };
+    return this.addPuzzle(newPuzzle);
+  };
+
+}
+
+// TODO fetch full dictionary from API
+// TODO have known answer display this managed by puzzle instead of guesser
+
+const testLexicon = ['apple', 'banana', 'ghost', 'quaint', 'miscellany', 'precocious', 'splash', 'zebra'];
+const puzzler = new PuzzleMaker(testLexicon);
+const puzzle = puzzler.getPuzzle(puzzler.createPuzzle());
 
 const checker = handleCheckAnswer(puzzle.answer);
 const myGuess = guessManager(puzzle.slots, checker);
